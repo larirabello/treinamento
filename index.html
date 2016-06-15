@@ -34,7 +34,7 @@
 <body ng-controller="listaTelefonicaCtrl">
 	<div class="jumbotron">
 		<h3>{{app}}</h3>
-		<table ng-show="contatos.length > 0" class="table">
+		<table class="table">
 			<tr>
 				<th></th>
 				<th>Nome</th>
@@ -42,7 +42,7 @@
 				<th>Operadora</th>
 				<th></th>
 			</tr>
-			<tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos">
+			<tr>
 				<td><input type="checkbox"/></td>
 				<td><div style="width: 20px; height: 20px;"></div></td>
 			</tr>
