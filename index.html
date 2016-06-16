@@ -1,7 +1,8 @@
 <html ng-app="listaTelefonica">
 <head>
+<meta charset="utf-8">
 	<title>Lista Telefonica</title>
-	<link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.css"> 
 	<style>
 		.jumbotron {
 			width: 400px;
@@ -13,8 +14,17 @@
 		.table {
 			margin-top: 20px;
 		}
+		.form {
+			padding: 10px;
+		}
+		.form.ng-invalid {
+			border: 1px solid #D68C8C;
+		}
 		.form-control {
 			margin-bottom: 5px;
+		}
+		.form-control.ng-touched.ng-invalid {
+			border: 1px solid #D68C8C;
 		}
 		.selecionado {
 			background-color: yellow;
@@ -24,16 +34,22 @@
 		}
 	</style>
 	<script src="lib/angular/angular.js"></script>
+	<script src="lib/angular/angular-messages.js"></script>
+	<script src="app.js"></script>
+	<script src="meufiltro.js"></script>
 	<script>
-		angular.module("listaTelefonica", []);
-		angular.module("listaTelefonica").controller("listaTelefonicaCtrl", function ($scope) {             
-			$scope.app = "Lista Telefonica";
-		});
+
 	</script>
 </head>
-<body ng-controller="listaTelefonicaCtrl">
+<body ng-controller="listaTelefonicaCtrl as ctrl">
 	<div class="jumbotron">
-		<h3>{{app}}</h3>
+		<h3>{{ctrl.app}}</h3>
+		<input class="form-control" type="text" placeholder="Pesquisa de Contatos" ng-model="ctrl.filtro"/>
+		<!-- <div ng-repeat="item in ctrl.teste track by $index">
+			<div>{{item}}</div>
+			<button>{{item}}</button>
+		</div> -->
+
 		<table class="table">
 			<tr>
 				<th></th>
@@ -41,19 +57,61 @@
 				<th>Telefone</th>
 				<th>Operadora</th>
 				<th></th>
+				<th></th>
 			</tr>
-			<tr>
-				<td><input type="checkbox"/></td>
-				<td><div style="width: 20px; height: 20px;"></div></td>
+			<tr ng-repeat="contato in ctrl.contatos| filter:{nome:ctrl.filtro} | limitTo:10 track by $index">
+				<td><input ng-model="contato.selecionado" type="checkbox" ng-click="ctrl.onClickSelecionado(contato)"/></td>
+				<td><div>{{contato.nome | meuFiltro}}</div></td>
+				<td>{{contato.telefone}}</td>
+				<td>{{contato.operadora.nome}}</td>
+				<td>
+					<div style="font-size:.5em;" ng-if="contato.selecionado">Selecionado com ng-show</div>
+					<!-- <div ng-show="contato.selecionado">Selecionado com ng-show</div>
+					<div ng-hide="contato.selecionado">Selecionado com ng-hide</div> -->
+				</td>
+				<!-- <td><div style="width: 20px; height: 20px;"></div></td> -->
+				<td><button ng-click="ctrl.removerContato(contato, ctrl.contatos)" style="color:red;">X</button></td>
 			</tr>
 		</table>
 		<hr/>
+		<form class="form" name="userForm">
+			<input class="form-control" type="text" placeholder="Nome" ng-model="ctrl.contato.nome"/>
+        	<input class="form-control" type="text" placeholder="Telefone" name="telefone" ng-model="ctrl.contato.telefone" ng-minlength="3" ng-maxlength="8" required/>
+        	<select  class="form-control"
+        			 ng-model="ctrl.contato.operadora"
+        			 ng-options="operadora.nome for operadora in ctrl.operadoras">
+        		<option value="operadora.nome" >Selecione uma operadora</option> 
+        	</select>
+        		<div ng-messages="userForm.telefone.$error" 
+        		 ng-if="userForm.telefone.$dirty">
 
-                <input class="form-control" type="text" placeholder="Nome"/>
-                <input class="form-control" type="text"placeholder="Telefone"/>
+        		<p ng-message="minlength">Entrada mínima inválida. </p>
+        		<p ng-message="maxlength">Ultrapassa o limite máximo de caracteres. </p>
+        		<p ng-message="required"> Insira nome e telefone válidos.</p>
+        	</div>
+		</form>
 
-		<button class="btn btn-primary btn-block">Adicionar Contato</button>
-		<button class="btn btn-danger btn-block">Apagar Contatos</button>
+        	<!-- VALIDAÇÃO SEM NG-MESSAGES
+        	<div ng-show="userForm.telefone.$touched">
+        		<p ng-show="userForm.telefone.$error.minlength">Entrada mínima inválida. </p>
+        		<p ng-show="userForm.telefone.$error.maxlength">Ultrapassa o limite máximo de caracteres. </p>
+        		<p ng-show="userForm.telefone.$error.required"> Insira nome e telefone válidos.</p>
+        	</div>
+
+        	<div ng-show="userForm.$dirty">
+        		<p ng-show="userForm.$invalid">Form inválido</p>
+        	</div>
+        	
+        	-->
+
+        	<!-- VALIDAÇÃO COM NG-MESSAGES -->
+        		<button class="btn btn-primary btn-block" ng-click="ctrl.adicionarContato(ctrl.contato)">Adicionar Contato</button>
+				<button class="btn btn-danger btn-block" 
+						ng-click="ctrl.removerContatos(ctrl.contatos)" 
+						ng-disabled="ctrl.disabledBtnApagar">
+						Apagar Contatos
+				</button>
+    
 	</div>
         
         <!--<div ng-include="'https://raw.githubusercontent.com/dhiegoatencio/treinamento/master/messages.html'"></div> -->
